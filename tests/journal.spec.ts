@@ -21,9 +21,7 @@ test("빈 상태에서 할 일을 추가하고 완료하면 새로고침 후에�
   page,
 }) => {
   await openDay(page);
-  await expect(
-    page.getByText("오늘 해내고 싶은 작은 일은 무엇인가요?"),
-  ).toBeVisible();
+  await expect(page.getByText("등록된 할 일이 없습니다.")).toBeVisible();
   await expect(
     page.getByRole("button", { name: "기록 남기기" }),
   ).toBeDisabled();
@@ -71,28 +69,26 @@ test("기록 분류, 수정, 삭제가 저장된다", async ({ page }) => {
 
 test("하루 평가와 회고가 날짜별로 분리되어 유지된다", async ({ page }) => {
   await openDay(page);
-  await page.getByRole("button", { name: "잘 해냈어요", exact: true }).click();
+  await page.getByRole("button", { name: "좋음", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "나를 위한 짧은 회고" })
+    .getByRole("textbox", { name: "회고" })
     .fill("중요한 일을 끝냈다. 내일은 산책을 해보자.");
   await page.getByLabel("기록 날짜 선택").fill("2026-10-20");
+  await expect(page.getByRole("textbox", { name: "회고" })).toBeEmpty();
   await expect(
-    page.getByRole("textbox", { name: "나를 위한 짧은 회고" }),
-  ).toBeEmpty();
-  await expect(
-    page.getByRole("button", { name: "잘 해냈어요", exact: true }),
+    page.getByRole("button", { name: "좋음", exact: true }),
   ).toHaveAttribute("aria-pressed", "false");
   await addEntry(page, "어제의 기록");
   await page.getByLabel("기록 날짜 선택").fill("2026-10-21");
   await expect(page.getByRole("article")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "잘 해냈어요", exact: true }),
+    page.getByRole("button", { name: "좋음", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await page.reload();
   await page.getByLabel("기록 날짜 선택").fill("2026-10-21");
-  await expect(
-    page.getByRole("textbox", { name: "나를 위한 짧은 회고" }),
-  ).toHaveValue("중요한 일을 끝냈다. 내일은 산책을 해보자.");
+  await expect(page.getByRole("textbox", { name: "회고" })).toHaveValue(
+    "중요한 일을 끝냈다. 내일은 산책을 해보자.",
+  );
 });
 
 test("돌아보기에서 실제 주간 합계를 확인하고 기록으로 이동한다", async ({
@@ -102,10 +98,10 @@ test("돌아보기에서 실제 주간 합계를 확인하고 기록으로 이�
   await addTask(page, "산책하기");
   await page.getByRole("checkbox", { name: "산책하기" }).check();
   await addEntry(page, "기분 좋은 산책을 했다.");
-  await page.getByRole("button", { name: "아주 뿌듯해요" }).click();
+  await page.getByRole("button", { name: "매우 좋음" }).click();
   await page.getByLabel("기록 날짜 선택").fill("2026-10-20");
   await addEntry(page, "어제는 독서를 했다.");
-  await page.getByRole("button", { name: "괜찮았어요", exact: true }).click();
+  await page.getByRole("button", { name: "보통", exact: true }).click();
   await page.getByRole("button", { name: "돌아보기", exact: true }).click();
   const stats = page.locator(".review-stats");
   await expect(stats).toContainText("2 / 7일");
@@ -130,36 +126,30 @@ test("백업과 복원은 확인 후에만 기록을 교체하고 잘못된 파�
   expect(JSON.parse(content).days["2026-10-21"].entries[0].text).toBe(
     "반드시 보존되어야 하는 기록",
   );
-  await page
-    .getByLabel("백업 파일 선택")
-    .setInputFiles({
-      name: "invalid.json",
-      mimeType: "application/json",
-      buffer: Buffer.from('{"version":1,"days":{"wrong":{}}}'),
-    });
+  await page.getByLabel("백업 파일 선택").setInputFiles({
+    name: "invalid.json",
+    mimeType: "application/json",
+    buffer: Buffer.from('{"version":1,"days":{"wrong":{}}}'),
+  });
   await expect(page.getByRole("alert")).toContainText(
     "올바른 daily. 백업 파일이 아니에요",
   );
-  await page
-    .getByLabel("백업 파일 선택")
-    .setInputFiles({
-      name: "backup.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(content),
-    });
+  await page.getByLabel("백업 파일 선택").setInputFiles({
+    name: "backup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(content),
+  });
   await expect(page.getByText("1일의 기록을 불러올까요?")).toBeVisible();
   await page.getByRole("button", { name: "취소", exact: true }).click();
   await expect(page.getByText("1일의 기록을 불러올까요?")).not.toBeVisible();
   await page.getByRole("button", { name: "닫기", exact: true }).click();
   await addEntry(page, "임시로 추가한 기록");
   await page.getByRole("button", { name: "데이터 관리", exact: true }).click();
-  await page
-    .getByLabel("백업 파일 선택")
-    .setInputFiles({
-      name: "backup.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(content),
-    });
+  await page.getByLabel("백업 파일 선택").setInputFiles({
+    name: "backup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(content),
+  });
   await page
     .getByRole("button", { name: "현재 기록을 바꾸고 불러오기" })
     .click();
@@ -208,7 +198,7 @@ test("모바일 화면에서 기록하고 주요 화면을 가로 스크롤 없�
   ).toBe(true);
   await page.getByRole("button", { name: "돌아보기", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "이번 주의 발자국" }),
+    page.getByRole("heading", { name: "이번 주 통계" }),
   ).toBeVisible();
   expect(
     await page.evaluate(

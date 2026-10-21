@@ -38,7 +38,7 @@ const html = `<!doctype html>
     <meta name="theme-color" content="#16372f" />
     <meta name="description" content="매일 한 일을 기록하고 나를 돌아보는 개인 공간" />
     <link rel="icon" href="data:image/svg+xml;base64,${icon.toString("base64")}" />
-    <title>daily. — 나를 쌓아가는 하루</title>
+    <title>daily. — 일일 기록</title>
     <style>/*! ${fontLicense.replace(/\*\//g, "* /")} */
 ${stylesheet.text.replace(/<\/style/gi, "<\\/style")}</style>
   </head>

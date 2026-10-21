@@ -26,7 +26,7 @@ test("독립 실행 HTML은 외부 자원 없이 실행되고 기록을 저장�
   await context.setOffline(true);
   await page.goto(url);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "나만의 속도로",
+    "하루 기록",
   );
   await page.evaluate(() => document.fonts.ready);
   expect(
@@ -54,9 +54,9 @@ test("독립 실행 HTML은 외부 자원 없이 실행되고 기록을 저장�
     .getByRole("textbox", { name: "하루 기록", exact: true })
     .fill("앱과 글꼴을 모두 담은 하나의 페이지");
   await page.getByRole("button", { name: "기록 남기기" }).click();
-  await page.getByRole("button", { name: "잘 해냈어요", exact: true }).click();
+  await page.getByRole("button", { name: "좋음", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "나를 위한 짧은 회고" })
+    .getByRole("textbox", { name: "회고" })
     .fill("오늘의 작은 문제를 해결했다.");
   await page.reload();
   await expect(
@@ -66,14 +66,14 @@ test("독립 실행 HTML은 외부 자원 없이 실행되고 기록을 저장�
     "앱과 글꼴을 모두 담은 하나의 페이지",
   );
   await expect(
-    page.getByRole("button", { name: "잘 해냈어요", exact: true }),
+    page.getByRole("button", { name: "좋음", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect(
-    page.getByRole("textbox", { name: "나를 위한 짧은 회고" }),
-  ).toHaveValue("오늘의 작은 문제를 해결했다.");
+  await expect(page.getByRole("textbox", { name: "회고" })).toHaveValue(
+    "오늘의 작은 문제를 해결했다.",
+  );
   await page.getByRole("button", { name: "돌아보기", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "이번 주의 발자국" }),
+    page.getByRole("heading", { name: "이번 주 통계" }),
   ).toBeVisible();
   expect(errors).toEqual([]);
   expect(requests.every((request) => request === url)).toBe(true);
@@ -109,7 +109,7 @@ test("index.html을 파일로 열면 독립 실행 앱이 열리고 오프라인
   }
   await expect(page).toHaveURL(pathToFileURL(resolve("daily.html")).href);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "나만의 속도로",
+    "하루 기록",
   );
 
   await page
@@ -121,9 +121,9 @@ test("index.html을 파일로 열면 독립 실행 앱이 열리고 오프라인
     .getByRole("textbox", { name: "하루 기록", exact: true })
     .fill("서버가 없어도 오늘의 기록을 남길 수 있다.");
   await page.getByRole("button", { name: "기록 남기기" }).click();
-  await page.getByRole("button", { name: "잘 해냈어요", exact: true }).click();
+  await page.getByRole("button", { name: "좋음", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "나를 위한 짧은 회고" })
+    .getByRole("textbox", { name: "회고" })
     .fill("오늘의 작은 문제를 해결했다.");
   await page.reload();
 
@@ -134,14 +134,14 @@ test("index.html을 파일로 열면 독립 실행 앱이 열리고 오프라인
     "서버가 없어도 오늘의 기록을 남길 수 있다.",
   );
   await expect(
-    page.getByRole("button", { name: "잘 해냈어요", exact: true }),
+    page.getByRole("button", { name: "좋음", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect(
-    page.getByRole("textbox", { name: "나를 위한 짧은 회고" }),
-  ).toHaveValue("오늘의 작은 문제를 해결했다.");
+  await expect(page.getByRole("textbox", { name: "회고" })).toHaveValue(
+    "오늘의 작은 문제를 해결했다.",
+  );
   await page.getByRole("button", { name: "돌아보기", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "이번 주의 발자국" }),
+    page.getByRole("heading", { name: "이번 주 통계" }),
   ).toBeVisible();
   expect(errors).toEqual([]);
   expect(remoteRequests).toEqual([]);
