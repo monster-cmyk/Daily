@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#16372f" />
+    <script>
+      if (window.location.protocol === "file:") {
+        window.location.replace(new URL("./daily.html", window.location.href));
+      }
+    </script>
+    <meta
+      name="description"
+      content="작은 기록이 만드는 나다운 하루. 할 일, 하루 기록, 회고를 한곳에 모아보세요."
+    />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>daily. — 나를 쌓아가는 하루</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
